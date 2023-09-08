@@ -27,13 +27,13 @@ def list_books():
                 'title': book_info[1], 
                 'synopsis': book_info[2], 
                 'author': book_info[3],
-                'editorial': book_info[4],
+                'publisher': book_info[4],
                 'volume': book_info[5]
                 }
             books.append(book)
         return jsonify({'books': books})
     except Exception as ex:
-        return jsonify({'message': ex.message})
+        return jsonify({'message': str(ex)})
 
 
 @app.route('/api/books/<id>', methods=['GET'])
@@ -49,14 +49,14 @@ def read_book(id):
                 'title': data[1], 
                 'synopsis': data[2], 
                 'author': data[3],
-                'editorial': data[4],
+                'publisher': data[4],
                 'volume': data[5]
                 }
             return jsonify({'books': book})
         else:
             return jsonify({'message': "Element not found"})
     except Exception as ex:
-        return jsonify({'message': ex.message})
+        return jsonify({'message': str(ex)})
 
 
 @app.route('/api/books', methods=['POST'])
@@ -64,34 +64,34 @@ def add_book():
     try:
         cursor = connection.connection.cursor()
         sql = """
-        INSERT INTO books 
-        (id, name, synopsis, author, editorial, volume) 
-        VALUES ({0}, '{1}', '{2}', '{3}', '{4}', {5})
+        INSERT INTO libros 
+        (title, synopsis, author, publisher, volume) 
+        VALUES ('{0}', '{1}', '{2}', '{3}', {4})
         """.format(
-            request.json['id'], 
-            request.json['name'], 
+            request.json['title'], 
             request.json['synopsis'], 
             request.json['author'], 
-            request.json['editorial'], 
+            request.json['publisher'], 
             request.json['volume'])
+        print(sql)
         cursor.execute(sql)
         connection.connection.commit()
        
         return jsonify({'books': request.json})
     except Exception as ex:
-        return jsonify({'message': ex.message})
+        return jsonify({'message': str(ex)})
 
 
 @app.route('/api/books/<id>', methods=['DELETE'])
 def delete_book(id):
     try:
         cursor = connection.connection.cursor()
-        sql = "DELETE FROM books WHERE id = '{0}'".format(id)
+        sql = "DELETE FROM libros WHERE id = '{0}'".format(id)
         cursor.execute(sql)
         connection.connection.commit()
         return jsonify({'books': "Book deleted successfully"})
     except Exception as ex:
-        return jsonify({'message': ex.message})
+        return jsonify({'message': str(ex)})
 
 
 
@@ -99,18 +99,18 @@ def delete_book(id):
 def update_book(id):
     try:
         cursor = connection.connection.cursor()
-        sql = """UPDATE books 
-        SET name = '{0}', 
+        sql = """UPDATE libros 
+        SET title = '{0}', 
         synopsis = '{1}', 
         author = '{2}', 
-        editorial = '{3}', 
+        publisher = '{3}', 
         volume = {4} 
         WHERE id = '{5}' 
         """.format(
-            request.json['name'], 
+            request.json['title'], 
             request.json['synopsis'], 
             request.json['author'], 
-            request.json['editorial'], 
+            request.json['publisher'], 
             request.json['volume'], 
             id
             )
@@ -119,7 +119,7 @@ def update_book(id):
        
         return jsonify({'books': "book updated successfully"})
     except Exception as ex:
-        return jsonify({'message': ex.message})
+        return jsonify({'message': str(ex)})
 
 
 
@@ -127,8 +127,12 @@ def update_book(id):
 def page_not_found(error):
     return redirect(url_for('list_books')), 404
 
+
+
 """
+
 MAIN
+
 """
 
 if __name__ == '__main__':
